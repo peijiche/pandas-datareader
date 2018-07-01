@@ -646,6 +646,38 @@ class Options(_OptionBaseReader):
             quote_time = data.Quote_Time[0]
         return quote_time
 
+
+    @property
+    def strike_prices(self):
+        """
+        Returns a list of available strike prices
+        """
+        try:
+            strike_prices = self._strike_prices
+        except AttributeError:
+            strike_prices = self._get_strike_prices
+        return strike_prices
+
+    def _get_strike_prices(self):
+        """
+        Gets available strike prices for an option symbol.
+
+        Returns
+        -------
+        List of float objects
+        """
+
+        url = self._OPTIONS_BASE_URL.format(sym=self.symbol)
+        jd = self._parse_url(url)
+
+        strike_prices  = [ps for ps in jd['optionChain']['result'][0]['strikes']]
+
+        if len(strike_prices) == 0:
+            raise RemoteDataError('Data not available')  # pragma: no cover
+
+        self._strike_prices = strike_prices
+        return strike_prices
+
     @property
     def expiry_dates(self):
         """
@@ -656,6 +688,7 @@ class Options(_OptionBaseReader):
         except AttributeError:
             expiry_dates = self._get_expiry_dates()
         return expiry_dates
+
 
     def _get_expiry_dates(self):
         """
