@@ -153,7 +153,11 @@ class YahooDailyReader(_DailyBaseReader):
 
     def _get_crumb(self, retries):
         # Scrape a history page for a valid crumb ID:
-        tu = "https://finance.yahoo.com/quote/{}/history".format(self.symbols[0])
+        if type(self.symbols) is list:
+            symbol_tmp = self.symbols[0]
+        else:
+            symbol_tmp = self.symbols
+        tu = "https://finance.yahoo.com/quote/{}/history".format(symbol_tmp)
         response = self._get_response(tu,
                                       params=self.params, headers=self.headers)
         out = str(self._sanitize_response(response))
